@@ -3,3 +3,11 @@
 #
 #	Backward chaining implementation
 #
+
+Syntax:
+
+~ | !	: NOT
+^ | +  	: AND
+v | *  	: OR
+x -> y 	: IF x THEN y
+x <-> y : IF x EQUAL y
