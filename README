@@ -4,10 +4,21 @@
 #	Backward chaining implementation
 #
 
-Syntax:
+System Syntax:
 
 ~ | !	: NOT
 ^ | +  	: AND
 v | *  	: OR
 x -> y 	: IF x THEN y
 x <-> y : IF x EQUAL y
+
+File Syntax:
+
+## define rules
+[rules]
+
+## declare facts
+[facts]
+
+## ask to query
+[query]
