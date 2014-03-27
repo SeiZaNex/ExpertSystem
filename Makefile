@@ -8,17 +8,17 @@ OBJS	=	$(subst $(SDIR),$(ODIR),$(SRCS:%.cpp=%.o))
 
 DEBUG	=	-ggdb3
 CFLAGS	=	-W -Wall -Wextra -Werror
-IFLAGS	=	-Iheaders
+IFLAGS	=	-Iheaders/
 
 RM	=	rm -f
 
 all	:	$(NAME)
 
 $(NAME)	:	$(OBJS)
-	$(GCC) $^ -o $@
+	$(GCC) $^ $(CFLAGS) $(IFLAGS) -o $@
 
-%.o	:	%.cpp
-	$(GCC) $< $(CFLAGS) $(IFLAGS) -o $@
+$(ODIR)%.o	:	$(SDIR)%.cpp
+	$(GCC) -c $< $(CFLAGS) $(IFLAGS) -o $@
 
 $(OBJS)	:	| $(ODIR)
 
