@@ -1,0 +1,10 @@
+[rules]
+B ^ C -> A
+E ^ F -> C
+D -> R
+
+[facts]
+D, E, F
+
+[query]
+A

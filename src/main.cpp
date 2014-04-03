@@ -10,9 +10,10 @@
 int		main(int ac, char *av[])
 {
 
-  if (ac > 2)
+  if (2 <= ac)
     {
       esie::Parser	pa(av[1]);
+      pa.parse();
     }
   return 0;
 }

@@ -6,8 +6,8 @@ ODIR	=	obj/
 SRCS	=	$(shell find $(SDIR) -iname "*.cpp")
 OBJS	=	$(subst $(SDIR),$(ODIR),$(SRCS:%.cpp=%.o))
 
-DEBUG	=	-ggdb3
-CFLAGS	=	-W -Wall -Wextra -Werror
+#DEBUG	=	-ggdb3
+CFLAGS	=	-std=c++0x -W -Wall -Wextra -Werror -ggdb3
 IFLAGS	=	-Iheaders/
 
 RM	=	rm -f
