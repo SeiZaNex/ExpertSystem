@@ -1,5 +1,5 @@
 [rules]
-B ^ C -> A
+B ^ G ^ C -> A
 E ^ F -> C
 D -> R
 

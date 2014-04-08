@@ -16,21 +16,19 @@ namespace	esie
     std::list<AObject *>	getDep() const;
 
     void			addImpl(AObject *obj);
-    void			addDep(AObject *ojb);
+    void			addDep(AObject *obj);
 
   protected:
     std::list<AObject *>	_impl;
     std::list<AObject *>	_dep;
-
-  private:
   };
 
   enum	op
     {
-      NOT,
-      AND,
-      OR,
-      EQU
+      NOT = 1 << 0,
+      AND = 1 << 1,
+      OR = 1 << 2,
+      EQU = 1 << 3
     };
 
   class		Rules : public AObject
@@ -47,9 +45,9 @@ namespace	esie
 
   enum	val
     {
-      FALSE,
-      TRUE,
-      UNKNOWN
+      FALSE = 0,
+      TRUE = 1 << 1,
+      UNKNOWN = 1 << 2
     };
 
   class		Values : public AObject
