@@ -1,0 +1,8 @@
+[rules]
+C -> A v B
+
+[facts]
+C
+
+[rules]
+A

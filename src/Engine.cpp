@@ -8,10 +8,10 @@ using namespace	esie;
 AObject::AObject() {}
 AObject::~AObject() {}
 
-std::list<AObject *>	AObject::getImpl() const { return this->_impl; }
+//std::list<AObject *>	AObject::getImpl() const { return this->_impl; }
 std::list<AObject *>	AObject::getDep() const { return this->_dep; }
 
-void		AObject::addImpl(AObject *obj) { this->_impl.push_back(obj); }
+//void		AObject::addImpl(AObject *obj) { this->_impl.push_back(obj); }
 void		AObject::addDep(AObject *obj) { this->_dep.push_back(obj); }
 
 

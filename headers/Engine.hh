@@ -12,14 +12,14 @@ namespace	esie
     AObject();
     ~AObject();
 
-    std::list<AObject *>	getImpl() const;
+    //    std::list<AObject *>	getImpl() const;
     std::list<AObject *>	getDep() const;
 
-    void			addImpl(AObject *obj);
+    //    void			addImpl(AObject *obj);
     void			addDep(AObject *obj);
 
   protected:
-    std::list<AObject *>	_impl;
+    //    std::list<AObject *>	_impl;
     std::list<AObject *>	_dep;
   };
 

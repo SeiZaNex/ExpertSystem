@@ -51,19 +51,19 @@ namespace	esie
 
     std::string		_file;
     std::list<Values *>	_facts;
-    std::list<Rules *>	_rules;
 
     std::stack<std::string>	_fact;
     std::stack<Rules *>		_oper;
-    std::stack<Rules *>		_stack;
+    std::stack<AObject *>	_stack;
 
     bool	_isDup(std::string &str);
     Values *	_getDup(std::string &str);
 
     void	_gatherRules();
-    //    std::stack<AObject *>	_parseDeps(std::string &deps);
+    AObject *	_parseDeps(std::string &deps);
 
-    void	_parseDeps(std::string &deps);
+    void	_printFacts();
+
     void	_parseRules(std::string &buff);
     void	_parseFacts(std::string &buff);
     void	_parseQuery(std::string &buff);
@@ -77,6 +77,58 @@ namespace	esie
 	&Parser::_parseQuery
       };
   };
+
+  inline enum elem	_isRules(std::string const &line)
+  {
+    if ("[rules]" == line)
+      return RULES;
+    return ENULL;
+  }
+
+  inline enum elem	_isFacts(std::string const &line)
+  {
+    if ("[facts]" == line)
+      return FACTS;
+    return ENULL;
+  }
+
+  inline enum elem	_isQuery(std::string const &line)
+  {
+    if ("[query]" == line)
+      return QUERY;
+    return ENULL;
+  }
+
+  inline enum elem	_isParseMode(std::string const &line)
+  {
+    enum elem	type = ENULL;
+
+    for (int i = 0; i < 3 && ENULL == type; ++i)
+      switch (i)
+	{
+	case 0:
+	  type = _isRules(line);
+	  break;
+	case 1:
+	  type = _isFacts(line);
+	  break;
+	case 2:
+	  type = _isQuery(line);
+	  break;
+	default:
+	  break;
+	}
+    return type;
+  }
+
+  inline int	_isOper(std::string &str)
+  {
+    for (int i = 0; i < OPER_SYMBOL; ++i)
+      if (oper[i].sym == str)
+	return i;
+    return -1;
+  }
+
 };
 
 #endif		/* !ESIE_PARSER_HH_ */

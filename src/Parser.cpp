@@ -16,49 +16,6 @@ Parser::Parser(char * const &file) : _file(file) {}
 Parser::Parser() {}
 Parser::~Parser() {}
 
-inline enum elem	_isRules(std::string const &line)
-{
-  if ("[rules]" == line)
-    return RULES;
-  return ENULL;
-}
-
-inline enum elem	_isFacts(std::string const &line)
-{
-  if ("[facts]" == line)
-    return FACTS;
-  return ENULL;
-}
-
-inline enum elem	_isQuery(std::string const &line)
-{
-  if ("[query]" == line)
-    return QUERY;
-  return ENULL;
-}
-
-inline enum elem	_isParseMode(std::string const &line)
-{
-  enum elem	type = ENULL;
-
-  for (int i = 0; i < 3 && ENULL == type; ++i)
-    switch (i)
-      {
-      case 0:
-	type = _isRules(line);
-	break;
-      case 1:
-	type = _isFacts(line);
-	break;
-      case 2:
-	type = _isQuery(line);
-	break;
-      default:
-	break;
-      }
-  return type;
-}
-
 bool		Parser::_isDup(std::string &str)
 {
   return std::any_of(_facts.begin(), _facts.end(), [str](Values *i){ return (i->getName() == str); });
@@ -77,14 +34,6 @@ Values *	Parser::_getDup(std::string &str)
 	  return ptr;
       }
   return NULL;
-}
-
-inline int	_isOper(std::string &str)
-{
-  for (int i = 0; i < OPER_SYMBOL; ++i)
-    if (oper[i].sym == str)
-      return i;
-  return -1;
 }
 
 void	Parser::_gatherRules()
@@ -112,7 +61,7 @@ void	Parser::_gatherRules()
     }
 }
 
-void	Parser::_parseDeps(std::string &deps)
+AObject *	Parser::_parseDeps(std::string &deps)
 {
   std::stringstream	ss(deps);
   std::string		str;
@@ -132,64 +81,88 @@ void	Parser::_parseDeps(std::string &deps)
     {
       if (!_isDup(_fact.top()))
 	this->_facts.push_back(new Values(_fact.top()));
+      this->_stack.push(_getDup(_fact.top()));
       _fact.pop();
     }
-  //  return _stack;
+  return _stack.top();
+}
+
+void	Parser::_printFacts()
+{
+  std::list<Values *>::iterator vit;
+  Values			*vtp;
+  enum val			val;
+
+  for (vit = _facts.begin(); vit != _facts.end(); ++vit)
+    {
+      vtp = *vit;
+      std::cout << vtp->getName() << ": ";
+
+      val = vtp->getVal();
+      if (val == TRUE)
+	std::cout << "TRUE";
+      else if (val == FALSE)
+	std::cout << "FALSE";
+      else
+	std::cout << "UNKNOWN";
+      if (!vtp->getDep().empty())
+	{
+	  // Values	*val;
+	  // Rules	*rul;
+	  std::cout << " => Dependencies";
+	  std::cout << " of length: " << vtp->getDep().size();
+
+	}
+      std::cout << std::endl;
+    }
 }
 
 void	Parser::_parseRules(std::string &buff)
 {
   std::string	impl;
   std::string	deps;
-  //  Rules		*rl;
+  AObject	*obj;
+  std::string	equ = "->";
 
-  if (std::string::npos != buff.find("->"))
+  if (std::string::npos != buff.find(equ))
     {
-      impl = buff.substr(buff.find("->") + 3);
-      deps = buff.substr(0, buff.find("->") - 1);
+      impl = buff.substr(buff.find(equ) + 3);
+      deps = buff.substr(0, buff.find(equ) - 1);
 
-      _parseDeps(deps);
-      _parseDeps(impl);
-      //std::cout << impl << std::endl;
+      obj = _parseDeps(impl);
+      obj->addDep(_parseDeps(deps));
     }
   else
     std::cerr << "Warning: Invalid rule set: no implication" << std::endl;
-
-  std::list<Values *>::iterator vit;
-  std::list<Rules *>::iterator rit;
-  Values	*vtp;
-  Rules		*rtp;
-  enum op	op;
-
-  std::cout << "Facts: " << std::endl;
-  for (vit = _facts.begin(); vit != _facts.end(); ++vit)
-    {
-      vtp = *vit;
-      std::cout << vtp->getName() << std::endl;
-    }
-
-  std::cout << "Rules: " << std::endl;
-  for (rit = _rules.begin(); rit != _rules.end(); ++rit)
-    {
-      rtp = *rit;
-      op = rtp->getOper();
-      if (op == NOT)
-	std::cout << "NOT: ";
-      else if (op == AND)
-	std::cout << "AND: ";
-      else if (op == OR)
-	std::cout << "OR";
-      else
-	std::cout << "EQU" << std::endl;
-      std::cout << rtp->getDep().size() << std::endl;
-    }
   return;
 }
 
 void	Parser::_parseFacts(std::string &buff)
 {
-  (void) buff;
-  //  std::cout << buff << std::endl;
+  std::stringstream	ss(buff);
+  std::string		str;
+  bool			flag = true;
+  Values		*val;
+
+  while (ss.good())
+    {
+      ss >> str;
+      if (std::string::npos != str.find("!"))
+	{
+	  str = str.substr(str.find("!"));
+	  flag = false;
+	}
+      if (std::string::npos != str.find(","))
+	str = str.substr(0, str.find(","));
+      val = _getDup(str);
+      if (NULL != val)
+	val->setVal((!flag) ? FALSE : TRUE);
+      else
+	{
+	  std::cerr << "Warning: Unknown use of a fact in the [facts]: ";
+	  std::cerr << str << std::endl;
+	}
+    }
 }
 
 void	Parser::_parseQuery(std::string &buff)
@@ -222,4 +195,6 @@ void		Parser::parse()
 	}
       ifile.close();
     }
+  std::cout << "Facts: " << std::endl;
+  _printFacts();
 }
