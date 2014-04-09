@@ -10,16 +10,13 @@ namespace	esie
   {
   public:
     AObject();
-    ~AObject();
+    virtual ~AObject();
 
-    //    std::list<AObject *>	getImpl() const;
     std::list<AObject *>	getDep() const;
 
-    //    void			addImpl(AObject *obj);
     void			addDep(AObject *obj);
 
   protected:
-    //    std::list<AObject *>	_impl;
     std::list<AObject *>	_dep;
   };
 

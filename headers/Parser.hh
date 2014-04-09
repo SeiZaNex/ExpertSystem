@@ -3,6 +3,7 @@
 
 #include	<list>
 #include	<stack>
+#include	<queue>
 #include	<string>
 
 #include	"Engine.hh"
@@ -54,15 +55,15 @@ namespace	esie
 
     std::stack<std::string>	_fact;
     std::stack<Rules *>		_oper;
-    std::stack<AObject *>	_stack;
+    std::queue<AObject *>	_queue;
+
+    void	_printFacts();
 
     bool	_isDup(std::string &str);
     Values *	_getDup(std::string &str);
 
     void	_gatherRules();
     AObject *	_parseDeps(std::string &deps);
-
-    void	_printFacts();
 
     void	_parseRules(std::string &buff);
     void	_parseFacts(std::string &buff);

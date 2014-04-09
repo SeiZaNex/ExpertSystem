@@ -1,5 +1,6 @@
 #include	<list>
 #include	<stack>
+#include	<queue>
 #include	<vector>
 #include	<string>
 #include	<fstream>
@@ -15,6 +16,71 @@ Parser::Parser(std::string const &file) : _file(file) {}
 Parser::Parser(char * const &file) : _file(file) {}
 Parser::Parser() {}
 Parser::~Parser() {}
+
+void	_printDep(AObject *obj, int i)
+{
+  std::list<AObject *>	list = obj->getDep();
+  std::list<AObject *>::iterator it;
+
+  std::cout << "== Current Layer: " << i << "==" << std::endl;
+
+  Values	*vl = dynamic_cast<Values *>(obj);
+  Rules		*rl = dynamic_cast<Rules *>(obj);
+
+  if (NULL != vl)
+    std::cout << "Value: " << vl->getName();
+  else if (NULL != rl)
+    {
+      enum op	rule = rl->getOper();
+      std::cout << "Rule: ";
+      if (NOT == rule)
+	std::cout << "NOT";
+      else if (AND == rule)
+	std::cout << "AND";
+      else if (OR == rule)
+	std::cout << "OR";
+      else
+	std::cout << "EQU";
+    }
+  std::cout << std::endl;
+  if (!list.empty())
+    {
+      std::cout << "=Layer [IN] : " << i + 1 << "=" << std::endl;
+      for (it = list.begin(); it != list.end(); ++it)
+	_printDep(*it, i + 1);
+    }
+  std::cout << "=Layer [OUT]: " << i << "=" << std::endl;
+}
+
+void	Parser::_printFacts()
+{
+  std::list<Values *>::iterator vit;
+  Values			*vtp;
+  enum val			val;
+
+  for (vit = _facts.begin(); vit != _facts.end(); ++vit)
+    {
+      vtp = *vit;
+      std::cout << vtp->getName() << ": ";
+
+      val = vtp->getVal();
+      if (val == TRUE)
+	std::cout << "TRUE";
+      else if (val == FALSE)
+	std::cout << "FALSE";
+      else
+	std::cout << "UNKNOWN";
+      if (!vtp->getDep().empty())
+	{
+	  std::cout << " => Length of dependencies: ";
+	  std::cout << vtp->getDep().size() << std::endl;
+	  std::cout << "==BEGIN List of dependencies==" << std::endl;
+	  _printDep(vtp, 0);
+	  std::cout << "==END List of dependencies==";
+	}
+      std::cout << std::endl;
+    }
+}
 
 bool		Parser::_isDup(std::string &str)
 {
@@ -47,17 +113,30 @@ void	Parser::_gatherRules()
       if (!_isDup(_fact.top()))
 	this->_facts.push_back(new Values(_fact.top()));
       rl->addDep(_getDup(_fact.top()));
+      std::cout << "Fetched " << rl->getOper() << ":" << _fact.top() << "|";
       _fact.pop();
-      if (_stack.empty())
+      if (_queue.empty())
 	{
 	  if (!_isDup(_fact.top()))
 	    this->_facts.push_back(new Values(_fact.top()));
 	  rl->addDep(_getDup(_fact.top()));
+	  std::cout << _fact.top();
 	  _fact.pop();
 	}
       else
-	rl->addDep(_stack.top());
-      _stack.push(rl);
+	{
+	  Values	*val = dynamic_cast<Values *>(_queue.back());
+	  Rules		*rule = dynamic_cast<Rules *>(_queue.back());
+
+	  //_queue.back()->addDep(rl);
+	  rl->addDep(_queue.back());
+	  if (NULL != val)
+	    std::cout << val->getName();
+	  else if (NULL != rule)
+	    std::cout << rule->getOper();
+	}
+      std::cout << std::endl;
+      _queue.push(rl);
     }
 }
 
@@ -81,40 +160,10 @@ AObject *	Parser::_parseDeps(std::string &deps)
     {
       if (!_isDup(_fact.top()))
 	this->_facts.push_back(new Values(_fact.top()));
-      this->_stack.push(_getDup(_fact.top()));
+      this->_queue.push(_getDup(_fact.top()));
       _fact.pop();
     }
-  return _stack.top();
-}
-
-void	Parser::_printFacts()
-{
-  std::list<Values *>::iterator vit;
-  Values			*vtp;
-  enum val			val;
-
-  for (vit = _facts.begin(); vit != _facts.end(); ++vit)
-    {
-      vtp = *vit;
-      std::cout << vtp->getName() << ": ";
-
-      val = vtp->getVal();
-      if (val == TRUE)
-	std::cout << "TRUE";
-      else if (val == FALSE)
-	std::cout << "FALSE";
-      else
-	std::cout << "UNKNOWN";
-      if (!vtp->getDep().empty())
-	{
-	  // Values	*val;
-	  // Rules	*rul;
-	  std::cout << " => Dependencies";
-	  std::cout << " of length: " << vtp->getDep().size();
-
-	}
-      std::cout << std::endl;
-    }
+  return _queue.back();
 }
 
 void	Parser::_parseRules(std::string &buff)
@@ -130,7 +179,9 @@ void	Parser::_parseRules(std::string &buff)
       deps = buff.substr(0, buff.find(equ) - 1);
 
       obj = _parseDeps(impl);
+      _queue = std::queue<AObject *>();
       obj->addDep(_parseDeps(deps));
+      _queue = std::queue<AObject *>();
     }
   else
     std::cerr << "Warning: Invalid rule set: no implication" << std::endl;
@@ -195,6 +246,5 @@ void		Parser::parse()
 	}
       ifile.close();
     }
-  std::cout << "Facts: " << std::endl;
   _printFacts();
 }

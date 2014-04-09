@@ -1,0 +1,80 @@
+Fetched 2:D|C
+Fetched 2:B|2
+Fetched 2:I|H
+Fetched 2:D|C
+Fetched 2:F|E
+A: UNKNOWN => Length of dependencies: 1
+==BEGIN List of dependencies==
+== Current Layer: 0==
+Value: A
+=Layer [IN] : 1=
+== Current Layer: 1==
+Rule: AND
+=Layer [IN] : 2=
+== Current Layer: 2==
+Value: B
+=Layer [IN] : 3=
+== Current Layer: 3==
+Rule: AND
+=Layer [IN] : 4=
+== Current Layer: 4==
+Value: F
+=Layer [OUT]: 4=
+== Current Layer: 4==
+Value: E
+=Layer [OUT]: 4=
+=Layer [OUT]: 3=
+=Layer [OUT]: 2=
+== Current Layer: 2==
+Rule: AND
+=Layer [IN] : 3=
+== Current Layer: 3==
+Value: D
+=Layer [OUT]: 3=
+== Current Layer: 3==
+Value: C
+=Layer [OUT]: 3=
+=Layer [OUT]: 2=
+=Layer [OUT]: 1=
+=Layer [OUT]: 0=
+==END List of dependencies==
+D: UNKNOWN
+C: UNKNOWN
+B: UNKNOWN => Length of dependencies: 1
+==BEGIN List of dependencies==
+== Current Layer: 0==
+Value: B
+=Layer [IN] : 1=
+== Current Layer: 1==
+Rule: AND
+=Layer [IN] : 2=
+== Current Layer: 2==
+Value: F
+=Layer [OUT]: 2=
+== Current Layer: 2==
+Value: E
+=Layer [OUT]: 2=
+=Layer [OUT]: 1=
+=Layer [OUT]: 0=
+==END List of dependencies==
+G: UNKNOWN => Length of dependencies: 1
+==BEGIN List of dependencies==
+== Current Layer: 0==
+Value: G
+=Layer [IN] : 1=
+== Current Layer: 1==
+Rule: AND
+=Layer [IN] : 2=
+== Current Layer: 2==
+Value: I
+=Layer [OUT]: 2=
+== Current Layer: 2==
+Value: H
+=Layer [OUT]: 2=
+=Layer [OUT]: 1=
+=Layer [OUT]: 0=
+==END List of dependencies==
+I: TRUE
+H: TRUE
+F: UNKNOWN
+E: UNKNOWN
