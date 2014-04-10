@@ -3,7 +3,6 @@
 
 #include	<list>
 #include	<stack>
-#include	<queue>
 #include	<string>
 
 #include	"Engine.hh"
@@ -47,15 +46,20 @@ namespace	esie
     ~Parser();
 
     void	parse();
+
+    std::list<Values *>	getFacts() const { return this->_facts; };
+    std::string		getQuery() const { return this->_query; };
+
   private:
     Parser();
 
     std::string		_file;
     std::list<Values *>	_facts;
+    std::string		_query;
 
     std::stack<std::string>	_fact;
     std::stack<Rules *>		_oper;
-    std::queue<AObject *>	_queue;
+    std::stack<AObject *>	_stack;
 
     void	_printFacts();
 
@@ -107,13 +111,13 @@ namespace	esie
     for (int i = 0; i < 3 && ENULL == type; ++i)
       switch (i)
 	{
-	case 0:
+	case RULES:
 	  type = _isRules(line);
 	  break;
-	case 1:
+	case FACTS:
 	  type = _isFacts(line);
 	  break;
-	case 2:
+	case QUERY:
 	  type = _isQuery(line);
 	  break;
 	default:

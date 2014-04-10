@@ -1,7 +1,5 @@
 #include	<list>
 #include	<stack>
-#include	<queue>
-#include	<vector>
 #include	<string>
 #include	<fstream>
 #include	<sstream>
@@ -17,7 +15,7 @@ Parser::Parser(char * const &file) : _file(file) {}
 Parser::Parser() {}
 Parser::~Parser() {}
 
-void	_printDep(AObject *obj, int i)
+static void	_printDep(AObject *obj, int i)
 {
   std::list<AObject *>	list = obj->getDep();
   std::list<AObject *>::iterator it;
@@ -113,30 +111,17 @@ void	Parser::_gatherRules()
       if (!_isDup(_fact.top()))
 	this->_facts.push_back(new Values(_fact.top()));
       rl->addDep(_getDup(_fact.top()));
-      std::cout << "Fetched " << rl->getOper() << ":" << _fact.top() << "|";
       _fact.pop();
-      if (_queue.empty())
+      if (_stack.empty())
 	{
 	  if (!_isDup(_fact.top()))
 	    this->_facts.push_back(new Values(_fact.top()));
 	  rl->addDep(_getDup(_fact.top()));
-	  std::cout << _fact.top();
 	  _fact.pop();
 	}
       else
-	{
-	  Values	*val = dynamic_cast<Values *>(_queue.back());
-	  Rules		*rule = dynamic_cast<Rules *>(_queue.back());
-
-	  //_queue.back()->addDep(rl);
-	  rl->addDep(_queue.back());
-	  if (NULL != val)
-	    std::cout << val->getName();
-	  else if (NULL != rule)
-	    std::cout << rule->getOper();
-	}
-      std::cout << std::endl;
-      _queue.push(rl);
+	rl->addDep(_stack.top());
+      _stack.push(rl);
     }
 }
 
@@ -160,10 +145,10 @@ AObject *	Parser::_parseDeps(std::string &deps)
     {
       if (!_isDup(_fact.top()))
 	this->_facts.push_back(new Values(_fact.top()));
-      this->_queue.push(_getDup(_fact.top()));
+      this->_stack.push(_getDup(_fact.top()));
       _fact.pop();
     }
-  return _queue.back();
+  return _stack.top();
 }
 
 void	Parser::_parseRules(std::string &buff)
@@ -179,9 +164,9 @@ void	Parser::_parseRules(std::string &buff)
       deps = buff.substr(0, buff.find(equ) - 1);
 
       obj = _parseDeps(impl);
-      _queue = std::queue<AObject *>();
+      _stack = std::stack<AObject *>();
       obj->addDep(_parseDeps(deps));
-      _queue = std::queue<AObject *>();
+      _stack = std::stack<AObject *>();
     }
   else
     std::cerr << "Warning: Invalid rule set: no implication" << std::endl;
@@ -218,8 +203,7 @@ void	Parser::_parseFacts(std::string &buff)
 
 void	Parser::_parseQuery(std::string &buff)
 {
-  (void) buff;
-  //std::cout << buff << std::endl;
+  this->_query = buff;
 }
 
 void		Parser::parse()
