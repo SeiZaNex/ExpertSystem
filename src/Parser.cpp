@@ -68,14 +68,14 @@ void	Parser::_printFacts()
 	std::cout << "FALSE";
       else
 	std::cout << "UNKNOWN";
-      if (!vtp->getDep().empty())
-	{
-	  std::cout << " => Length of dependencies: ";
-	  std::cout << vtp->getDep().size() << std::endl;
-	  std::cout << "==BEGIN List of dependencies==" << std::endl;
-	  _printDep(vtp, 0);
-	  std::cout << "==END List of dependencies==";
-	}
+      // if (!vtp->getDep().empty())
+      // 	{
+      // 	  std::cout << " => Length of dependencies: ";
+      // 	  std::cout << vtp->getDep().size() << std::endl;
+      // 	  std::cout << "==BEGIN List of dependencies==" << std::endl;
+      // 	  _printDep(vtp, 0);
+      // 	  std::cout << "==END List of dependencies==";
+      // 	}
       std::cout << std::endl;
     }
 }
@@ -183,9 +183,10 @@ void	Parser::_parseFacts(std::string &buff)
   while (ss.good())
     {
       ss >> str;
+      flag = true;
       if (std::string::npos != str.find("!"))
 	{
-	  str = str.substr(str.find("!"));
+	  str = str.substr(str.find("!") + 1);
 	  flag = false;
 	}
       if (std::string::npos != str.find(","))

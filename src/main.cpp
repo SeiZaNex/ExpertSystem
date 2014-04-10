@@ -49,9 +49,9 @@ inline esie::val	valSet(esie::Values *&ptr, esie::val val)
 
 esie::val	flagVal(esie::Values *&val, std::list<esie::val> &flag)
 {
-  if (onAny(flag, esie::TRUE) && !onAny(flag, esie::FALSE))
+  if (onAll(flag, esie::TRUE))
     return valSet(val, esie::TRUE);
-  else if (onAny(flag, esie::FALSE) && !onAny(flag, esie::TRUE))
+  else if (onAll(flag, esie::FALSE))
     return valSet(val, esie::FALSE);
   else
     return esie::UNKNOWN; 
@@ -105,6 +105,8 @@ esie::val	infrOut(esie::Values *&val)
       std::cout << "]" << std::endl;
       std::cout << "But it has an unknown value." << std::endl;
     }
+  else
+    std::cout << "According to the fact: [" << val->getName() << "]" << std::endl;
   return val->getVal();
 }
 
@@ -113,15 +115,11 @@ esie::val	recDep(esie::AObject *ptr)
   std::list<esie::AObject *>		list = ptr->getDep();
   std::list<esie::AObject *>::iterator	it;
   std::list<esie::val>			flag;
-  esie::val				rec;
 
   if (!list.empty())
     for (it = list.begin(); it != list.end(); ++it)
-      {
-	rec = recDep(*it);
-	if (esie::UNKNOWN != rec)
-	  flag.push_back(rec);
-      }
+      flag.push_back(recDep(*it));
+
   if (!flag.empty())
     return flagOut(ptr, flag);
   else
@@ -129,7 +127,8 @@ esie::val	recDep(esie::AObject *ptr)
       esie::Values	*vl = dynamic_cast<esie::Values *>(ptr);
 
       if (NULL != vl)
-	return infrOut(vl);
+	return vl->getVal();
+      std::cerr << "Hi?" << std::endl;
     }
   std::cerr << "There has been an error within the tree" << std::endl;
   return esie::UNKNOWN;
@@ -137,21 +136,31 @@ esie::val	recDep(esie::AObject *ptr)
 
 void		solveQuery(std::list<esie::Values *> &rules, std::string &query)
 {
-  esie::Values	*start = _fetchRule(rules, query);
-  esie::val	flag;
+  esie::Values				*start = _fetchRule(rules, query);
+  std::list<esie::AObject *>		list = start->getDep();
+  std::list<esie::AObject *>::iterator	it;
+  esie::val				flag = esie::UNKNOWN;
 
   if (NULL != start)
     {
       std::cout << "Query is: [" << start->getName() << "]" << std::endl;
-      flag = recDep(start);
-      std::cout << "Query: [" << start->getName() << "] is [";
-      if (esie::TRUE == flag)
-	std::cout << "true";
-      else if (esie::FALSE == flag)
-	std::cout << "false";
+      if (!list.empty())
+	{
+	  for (it = list.begin(); it != list.end() && flag == esie::UNKNOWN; ++it)
+	    {
+	      flag = recDep(*it);
+	    }
+	  std::cout << "Query: [" << start->getName() << "] is [";
+	  if (esie::TRUE == flag)
+	    std::cout << "true";
+	  else if (esie::FALSE == flag)
+	    std::cout << "false";
+	  else
+	    std::cout << "unknown";
+	  std::cout << "]" << std::endl;
+	}
       else
-	std::cout << "error";
-      std::cout << "]" << std::endl;
+	std::cerr << "Query has no dependencies" << std::endl;
     }
   else
     std::cerr << "Query is non existant within the rules." << std::endl;
