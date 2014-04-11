@@ -42,9 +42,9 @@ namespace	esie
 
   enum	val
     {
-      FALSE = 1,
-      TRUE = 2,
-      UNKNOWN = 3
+      FALSE = 1 << 0,
+      TRUE = 1 << 1,
+      UNKNOWN = FALSE | TRUE
     };
 
   class		Values : public AObject

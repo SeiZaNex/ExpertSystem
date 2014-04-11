@@ -112,15 +112,18 @@ void	Parser::_gatherRules()
 	this->_facts.push_back(new Values(_fact.top()));
       rl->addDep(_getDup(_fact.top()));
       _fact.pop();
-      if (_stack.empty())
+      if (NOT != rl->getOper())
 	{
-	  if (!_isDup(_fact.top()))
-	    this->_facts.push_back(new Values(_fact.top()));
-	  rl->addDep(_getDup(_fact.top()));
-	  _fact.pop();
+	  if (_stack.empty())
+	    {
+	      if (!_isDup(_fact.top()))
+		this->_facts.push_back(new Values(_fact.top()));
+	      rl->addDep(_getDup(_fact.top()));
+	      _fact.pop();
+	    }
+	  else
+	    rl->addDep(_stack.top());
 	}
-      else
-	rl->addDep(_stack.top());
       _stack.push(rl);
     }
 }
@@ -134,6 +137,15 @@ AObject *	Parser::_parseDeps(std::string &deps)
   while (ss.good())
     {
       ss >> str;
+      if (1 < str.size())
+	if (std::string::npos != str.find("!") || std::string::npos != str.find("~"))
+	  {
+	    if (std::string::npos != str.find("!"))
+	      str = str.substr(str.find("!") + 1);
+	    else
+	      str = str.substr(str.find("~") + 1);
+	    _oper.push(new Rules(NOT));
+	  }
       ops = _isOper(str);
       if (-1 != ops)
 	_oper.push(new Rules(oper[ops].rule));
@@ -184,9 +196,12 @@ void	Parser::_parseFacts(std::string &buff)
     {
       ss >> str;
       flag = true;
-      if (std::string::npos != str.find("!"))
+      if (std::string::npos != str.find("!") || std::string::npos != str.find("~"))
 	{
-	  str = str.substr(str.find("!") + 1);
+	  if (std::string::npos != str.find("!"))
+	    str = str.substr(str.find("!") + 1);
+	  else
+	    str = str.substr(str.find("~") + 1);
 	  flag = false;
 	}
       if (std::string::npos != str.find(","))
@@ -231,5 +246,5 @@ void		Parser::parse()
 	}
       ifile.close();
     }
-  _printFacts();
+  //  _printFacts();
 }
