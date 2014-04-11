@@ -10,7 +10,7 @@ System Syntax:
 ^ | +  	: AND
 v | *  	: OR
 x -> y 	: IF x THEN y
-x <-> y : IF x EQUAL y
+(x <-> y : IF x EQUAL y)
 
 File Syntax:
 
