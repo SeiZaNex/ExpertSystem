@@ -4,5 +4,5 @@ C -> A v B
 [facts]
 C
 
-[rules]
+[query]
 A
